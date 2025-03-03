@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { OnResultFunction, QrReader } from "react-qr-reader";
 import * as M from "@mantine/core";
 import Link from "next/link";
+import { notifications } from "@mantine/notifications";
 
 export default function Home() {
   const router = useRouter();
@@ -10,7 +11,28 @@ export default function Home() {
   function handleQrResult(result: Parameters<OnResultFunction>[0]) {
     const text = result?.getText();
     if (!text) return;
-    router.push(`/pacientes/${text}`);
+
+    let param = text;
+    const paramNum = Number(param);
+
+    if (!Number.isFinite(paramNum)) {
+      try {
+        const url = new URL(text);
+        const lastSegment = url.pathname.split("/").pop();
+        if (!lastSegment) throw new Error();
+        param = lastSegment;
+      } catch (e) {
+        notifications.show({
+          title: "Error",
+          message: "El QR no es válido",
+          color: "red",
+        });
+        console.error(e);
+        return;
+      }
+    }
+
+    router.push(`/pacientes/${param}`);
   }
 
   return (

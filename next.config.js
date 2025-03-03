@@ -9,10 +9,7 @@ const config = {
   reactStrictMode: true,
   output: "export",
   transpilePackages: ["geist"],
-<<<<<<< Updated upstream
-=======
   distDir: "docs",
->>>>>>> Stashed changes
   basePath: "/chelly-med",
 };
 
