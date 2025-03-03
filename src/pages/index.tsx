@@ -32,7 +32,7 @@ export default function Home() {
       }
     }
 
-    router.push(`/pacientes/${param}`);
+    void router.push(`/pacientes/${param}`);
   }
 
   return (
