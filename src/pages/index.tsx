@@ -1,9 +1,16 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { OnResultFunction, QrReader } from "react-qr-reader";
+import * as M from "@mantine/core";
+import Link from "next/link";
 
 export default function Home() {
+  const router = useRouter();
+
   function handleQrResult(result: Parameters<OnResultFunction>[0]) {
-    result?.getText();
+    const text = result?.getText();
+    if (!text) return;
+    router.push(`/pacientes/${text}`);
   }
 
   return (
@@ -26,6 +33,32 @@ export default function Home() {
                 onResult={handleQrResult}
               />
             </div>
+
+            <M.Paper shadow="sm" p="md" mt="xl" withBorder>
+              <M.Title order={4} mb="md">
+                Pacientes de prueba
+              </M.Title>
+              <M.Text mb="md" size="sm" c="dimmed">
+                Para fines de demostración, puede acceder directamente a estos
+                pacientes:
+              </M.Text>
+              <M.Group>
+                <M.Button
+                  component={Link}
+                  href="/pacientes/12345"
+                  variant="outline"
+                >
+                  María González
+                </M.Button>
+                <M.Button
+                  component={Link}
+                  href="/pacientes/67890"
+                  variant="outline"
+                >
+                  Juan Pérez
+                </M.Button>
+              </M.Group>
+            </M.Paper>
           </div>
         </div>
       </main>

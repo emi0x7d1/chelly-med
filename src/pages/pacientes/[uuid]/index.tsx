@@ -14,23 +14,39 @@ import {
   IconHeartbeat,
   IconAlertCircle,
 } from "@tabler/icons-react";
+import Link from "next/link";
 
-// Mock patient data - in a real app, this would come from an API
-const mockPatientData = {
-  id: "12345",
-  name: "María González López",
-  birthDate: "1985-06-15",
-  gender: "Femenino",
-  bloodType: "O+",
-  phone: "+52 555 123 4567",
-  address: "Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México",
-  allergies: ["Penicilina", "Mariscos"],
-  medicalConditions: ["Hipertensión", "Diabetes tipo 2"],
-  additionalNotes:
-    "Paciente con tratamiento regular para hipertensión. Última visita hace 3 meses.",
+// Mock patients data - in a real app, this would come from an API
+const mockPatientsData = {
+  "12345": {
+    id: "12345",
+    name: "María González López",
+    birthDate: "1985-06-15",
+    gender: "Femenino",
+    bloodType: "O+",
+    phone: "+52 555 123 4567",
+    address: "Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México",
+    allergies: ["Penicilina", "Mariscos"],
+    medicalConditions: ["Hipertensión", "Diabetes tipo 2"],
+    additionalNotes:
+      "Paciente con tratamiento regular para hipertensión. Última visita hace 3 meses.",
+  },
+  "67890": {
+    id: "67890",
+    name: "Juan Pérez",
+    birthDate: "1990-02-20",
+    gender: "Masculino",
+    bloodType: "A-",
+    phone: "+52 555 901 2345",
+    address: "Calle 5 de Mayo 123, Col. Centro, Ciudad de México",
+    allergies: ["Sulfamidas", "Látex"],
+    medicalConditions: ["Asma", "Migraña"],
+    additionalNotes:
+      "Paciente con tratamiento regular para asma. Última visita hace 2 meses.",
+  },
 };
 
-type PatientData = typeof mockPatientData;
+type PatientData = typeof mockPatientsData["12345"];
 
 export default function PatientPage() {
   const router = useRouter();
@@ -45,7 +61,8 @@ export default function PatientPage() {
       setLoading(true);
       // Simulate API call
       setTimeout(() => {
-        setPatient(mockPatientData);
+        const patientData = mockPatientsData[uuid as keyof typeof mockPatientsData];
+        setPatient(patientData);
         setLoading(false);
       }, 500);
     }
@@ -227,7 +244,12 @@ export default function PatientPage() {
                     </M.Text>
                   </M.Paper>
                 </M.Group>
-                <M.Button w="100%" mt="md">
+                <M.Button
+                  component={Link}
+                  href={`/pacientes/${patient.id}/historial`}
+                  w="100%"
+                  mt="md"
+                >
                   Ver historial
                 </M.Button>
               </div>
