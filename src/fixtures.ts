@@ -20,9 +20,10 @@ export interface VitalSign
   pain: string
 }
 
-export interface VitalSignsReading {
-  vitalSign: VitalSign,
-  time: Date,
+export interface VitalSignsReading
+{
+  vitalSign: VitalSign
+  time: Date
 }
 
 export interface Patient
