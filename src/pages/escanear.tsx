@@ -21,9 +21,10 @@ export default function Home()
       try
       {
         const url = new URL(text)
-        const lastSegment = url.pathname.split("/").pop()
-        if (!lastSegment) throw new Error()
-        param = lastSegment
+        // extract uuid from url
+        const uuid = url.searchParams.get("uuid")
+        if (!uuid) throw new Error()
+        param = uuid
       }
       catch (e)
       {
@@ -37,7 +38,7 @@ export default function Home()
       }
     }
 
-    void router.push(`/centro/pacientes/${param}`)
+    void router.push(`/centro/pacientes?uuid=${param}`)
   }
 
   return (

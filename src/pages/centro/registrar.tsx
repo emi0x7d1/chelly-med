@@ -332,7 +332,7 @@ const Registrar = () =>
         <DialogContent>
           <p className="text-xl font-medium mb-4 text-center">Código QR del paciente</p>
           <div className="flex justify-center">
-            {inBrowser && <QRCode id="QRCode" value={`${window.location.href.replaceAll("/registrar", "")}/pacientes/${uuid}`} />}
+            {inBrowser && <QRCode id="QRCode" value={`${window.location.href.replaceAll("/registrar", "")}/pacientes?uuid=${uuid}`} />}
           </div>
           <Button onClick={() =>
           {
