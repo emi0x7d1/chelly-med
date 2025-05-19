@@ -11,6 +11,7 @@ import {
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { useRouter } from "next/router"
+import QRCode from "react-qr-code"
 
 const formSchema = z.object({
   username: z.string().min(4, {

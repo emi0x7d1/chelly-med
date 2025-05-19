@@ -1,6 +1,6 @@
 import Head from "next/head"
 import { useRouter } from "next/router"
-import { type OnResultFunction, QrReader } from "react-qr-reader"
+import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
 import { notifications } from "@mantine/notifications"
 import Link from "next/link"
 
@@ -8,9 +8,9 @@ export default function Home()
 {
   const router = useRouter()
 
-  const handleQrResult = (result: Parameters<OnResultFunction>[0]) =>
+  const handleQrResult = (result: Array<IDetectedBarcode>) =>
   {
-    const text = result?.getText()
+    const text = result?.[0]?.rawValue
     if (!text) return
 
     let param = text
@@ -61,10 +61,9 @@ export default function Home()
             <p className="text-center text-xl">
               Escanee el código QR del paciente
             </p>
-            <div className="w-full">
-              <QrReader
-                constraints={{ facingMode: "environment" }}
-                onResult={handleQrResult}
+            <div className="w-full min-h-[200px]">
+              <Scanner
+                onScan={handleQrResult}
               />
             </div>
           </div>
