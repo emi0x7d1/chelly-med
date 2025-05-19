@@ -1,11 +1,11 @@
-import React from "react";
-import { useRouter } from "next/router";
-import { Container, Title } from "@mantine/core";
-import { LineChart } from "@mantine/charts";
+import React from "react"
+import { useRouter } from "next/router"
+import { Container, Title } from "@mantine/core"
+import { LineChart } from "@mantine/charts"
 
 // Mock data for different patients
 const patientData = {
-  "12345": {
+  12345: {
     name: "María González López",
     bloodPressureData: [
       { date: "2025-02-01", systolic: 120, diastolic: 80 },
@@ -23,7 +23,7 @@ const patientData = {
       { date: "2025-02-03", temperature: 36.6 },
     ],
   },
-  "67890": {
+  67890: {
     name: "Juan Pérez",
     bloodPressureData: [
       { date: "2025-02-01", systolic: 135, diastolic: 85 },
@@ -40,22 +40,25 @@ const patientData = {
       { date: "2025-02-02", temperature: 36.6 },
       { date: "2025-02-03", temperature: 36.7 },
     ],
-  }
-};
+  },
+}
 
-export default function HistoryPage() {
-  const router = useRouter();
-  const { uuid } = router.query;
-  
+export default function HistoryPage()
+{
+  const router = useRouter()
+  const { uuid } = router.query
+
   // Get patient-specific data or use default if not found
-  const currentPatient = uuid && typeof uuid === 'string' && patientData[uuid as keyof typeof patientData]
+  const currentPatient = uuid && typeof uuid === "string" && patientData[uuid as keyof typeof patientData]
     ? patientData[uuid as keyof typeof patientData]
-    : patientData["12345"]; // Default to first patient
-  
+    : patientData["12345"] // Default to first patient
+
   return (
     <Container size="md" py="xl">
       <Title order={2} mb="xl">
-        Historial de Signos Vitales - {currentPatient.name}
+        Historial de Signos Vitales -
+        {" "}
+        {currentPatient.name}
       </Title>
 
       <Title order={3} mt="xl" className="mb-4">
@@ -92,8 +95,8 @@ export default function HistoryPage() {
           { name: "temperature", color: "orange.6", label: "Temperatura" },
         ]}
         className="h-[300px] mb-8"
-        valueFormatter={(value) => `${value}°C`}
+        valueFormatter={value => `${value}°C`}
       />
     </Container>
-  );
+  )
 }

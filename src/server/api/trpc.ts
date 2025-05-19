@@ -6,12 +6,12 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
-import superjson from "superjson";
-import { ZodError } from "zod";
+import { initTRPC } from "@trpc/server"
+import { type CreateNextContextOptions } from "@trpc/server/adapters/next"
+import superjson from "superjson"
+import { ZodError } from "zod"
 
-import { db } from "~/server/db";
+import { db } from "~/server/db"
 
 /**
  * 1. CONTEXT
@@ -21,7 +21,7 @@ import { db } from "~/server/db";
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 
-type CreateContextOptions = Record<string, never>;
+type CreateContextOptions = Record<string, never>
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -33,11 +33,12 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = (_opts: CreateContextOptions) =>
+{
   return {
     db,
-  };
-};
+  }
+}
 
 /**
  * This is the actual context you will use in your router. It will be used to process every request
@@ -45,9 +46,10 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
-};
+export const createTRPCContext = (_opts: CreateNextContextOptions) =>
+{
+  return createInnerTRPCContext({})
+}
 
 /**
  * 2. INITIALIZATION
@@ -59,7 +61,8 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
-  errorFormatter({ shape, error }) {
+  errorFormatter({ shape, error })
+  {
     return {
       ...shape,
       data: {
@@ -67,16 +70,16 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
         zodError:
           error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
-    };
+    }
   },
-});
+})
 
 /**
  * Create a server-side caller.
  *
  * @see https://trpc.io/docs/server/server-side-calls
  */
-export const createCallerFactory = t.createCallerFactory;
+export const createCallerFactory = t.createCallerFactory
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
@@ -90,7 +93,7 @@ export const createCallerFactory = t.createCallerFactory;
  *
  * @see https://trpc.io/docs/router
  */
-export const createTRPCRouter = t.router;
+export const createTRPCRouter = t.router
 
 /**
  * Middleware for timing procedure execution and adding an artificial delay in development.
@@ -98,22 +101,24 @@ export const createTRPCRouter = t.router;
  * You can remove this if you don't like it, but it can help catch unwanted waterfalls by simulating
  * network latency that would occur in production but not in local development.
  */
-const timingMiddleware = t.middleware(async ({ next, path }) => {
-  const start = Date.now();
+const timingMiddleware = t.middleware(async ({ next, path }) =>
+{
+  const start = Date.now()
 
-  if (t._config.isDev) {
+  if (t._config.isDev)
+  {
     // artificial delay in dev
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
+    const waitMs = Math.floor(Math.random() * 400) + 100
+    await new Promise(resolve => setTimeout(resolve, waitMs))
   }
 
-  const result = await next();
+  const result = await next()
 
-  const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+  const end = Date.now()
+  console.log(`[TRPC] ${path} took ${end - start}ms to execute`)
 
-  return result;
-});
+  return result
+})
 
 /**
  * Public (unauthenticated) procedure
@@ -122,4 +127,4 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure.use(timingMiddleware);
+export const publicProcedure = t.procedure.use(timingMiddleware)

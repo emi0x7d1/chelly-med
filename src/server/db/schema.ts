@@ -1,30 +1,83 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
-import { index, int, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
+import { index, serial, text, pgTable, customType } from "drizzle-orm/pg-core"
+import { z } from "zod"
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const createTable = sqliteTableCreator((name) => `doc_${name}`);
-
-export const posts = createTable(
-  "post",
+const alergiesPgType = customType({
+  dataType: () =>
   {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: text("name", { length: 256 }),
-    createdAt: int("created_at", { mode: "timestamp" })
-      .default(sql`(unixepoch())`)
-      .notNull(),
-    updatedAt: int("updated_at", { mode: "timestamp" }).$onUpdate(
-      () => new Date()
-    ),
+    return "jsonb"
   },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
-);
+
+  fromDriver: () =>
+  {
+    z.array(
+      z.object({
+        name: z.string(),
+        additionalInfo: z.string(),
+      }),
+    )
+  },
+
+  toDriver: (value: any) =>
+  {
+    return JSON.stringify(value)
+  },
+})
+
+const medicalConditionsPgType = customType({
+  dataType: () =>
+  {
+    return "jsonb"
+  },
+
+  fromDriver: () =>
+  {
+    z.array(
+      z.object({
+        name: z.string(),
+        additionalInfo: z.string(),
+      }),
+    )
+  },
+
+  toDriver: (value: any) =>
+  {
+    return JSON.stringify(value)
+  },
+})
+
+const vitalSignsPgType = customType({
+  dataType: () =>
+  {
+    return "jsonb"
+  },
+
+  fromDriver: () =>
+  {
+    z.array(
+      z.object({
+        name: z.string(),
+        value: z.string(),
+      }),
+    )
+  },
+
+  toDriver: (value: any) =>
+  {
+    return JSON.stringify(value)
+  },
+})
+
+export const patients = pgTable("patients", {
+  id: serial("id").primaryKey(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  birthDate: text("birth_date").notNull(),
+  phoneNumber: text("phone_number").notNull(),
+  bloodType: text("blood_type").notNull(),
+  alergies: alergiesPgType("alergies").notNull(),
+  medicalConditions: medicalConditionsPgType("medical_conditions").notNull(),
+  vitalSigns: vitalSignsPgType("vital_signs").notNull(),
+})

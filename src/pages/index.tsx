@@ -1,89 +1,94 @@
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { OnResultFunction, QrReader } from "react-qr-reader";
-import * as M from "@mantine/core";
-import Link from "next/link";
-import { notifications } from "@mantine/notifications";
+import { useForm, type UseFormReturn } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "~/components/ui/form"
+import { Input } from "~/components/ui/input"
+import { Button } from "~/components/ui/button"
+import { useRouter } from "next/router"
 
-export default function Home() {
-  const router = useRouter();
+const formSchema = z.object({
+  username: z.string().min(4, {
+    message: "Número de usuario inválido",
+  }),
+  password: z.string().min(1, { message: "La contraseña es requerida" }),
+})
 
-  function handleQrResult(result: Parameters<OnResultFunction>[0]) {
-    const text = result?.getText();
-    if (!text) return;
+type FormSchema = z.output<typeof formSchema>
 
-    let param = text;
-    const paramNum = Number(param);
+export default function Home()
+{
+  const router = useRouter()
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  })
 
-    if (!Number.isFinite(paramNum)) {
-      try {
-        const url = new URL(text);
-        const lastSegment = url.pathname.split("/").pop();
-        if (!lastSegment) throw new Error();
-        param = lastSegment;
-      } catch (e) {
-        notifications.show({
-          title: "Error",
-          message: "El QR no es válido",
-          color: "red",
-        });
-        console.error(e);
-        return;
-      }
-    }
-
-    void router.push(`/pacientes/${param}`);
+  function handleSubmit(data: FormSchema)
+  {
+    void router.push("/centro")
   }
 
   return (
-    <>
-      <Head>
-        <title>Chelly</title>
-        <meta name="description" content="Chelly app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className="max-w-600px mx-auto">
-        <div className="grid h-screen w-full place-items-center justify-items-center px-2">
-          <div className="w-full">
-            <p className="text-center text-xl">
-              Escanee el código QR del paciente
-            </p>
-            <div className="w-full">
-              <QrReader
-                constraints={{ facingMode: "environment" }}
-                onResult={handleQrResult}
-              />
-            </div>
-
-            <M.Paper shadow="sm" p="md" mt="xl" withBorder>
-              <M.Title order={4} mb="md">
-                Pacientes de prueba
-              </M.Title>
-              <M.Text mb="md" size="sm" c="dimmed">
-                Para fines de demostración, puede acceder directamente a estos
-                pacientes:
-              </M.Text>
-              <M.Group>
-                <M.Button
-                  component={Link}
-                  href="/pacientes/12345"
-                  variant="outline"
-                >
-                  María González
-                </M.Button>
-                <M.Button
-                  component={Link}
-                  href="/pacientes/67890"
-                  variant="outline"
-                >
-                  Juan Pérez
-                </M.Button>
-              </M.Group>
-            </M.Paper>
-          </div>
-        </div>
-      </main>
-    </>
-  );
+    <div className="mx-auto grid h-screen max-w-[1000px] place-items-center">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="mx-auto grid w-full max-w-[460px] gap-y-6"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/chelly-med/logo.png"
+            alt="logo"
+            className="mx-auto w-[120px]"
+          />
+          <p className="mb-8 text-center text-2xl font-medium">MediQR</p>
+          <UsernameField {...form} />
+          <PasswordField {...form} />
+          <Button type="submit">Iniciar sesión</Button>
+        </form>
+      </Form>
+    </div>
+  )
 }
+
+const UsernameField = (form: UseFormReturn<FormSchema>) =>
+{
+  return (
+    <FormField
+      control={form.control}
+      name="username"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Número de usuario</FormLabel>
+          <FormControl>
+            <Input {...field} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+const PasswordField = (props: UseFormReturn<FormSchema>) => (
+  <FormField
+    control={props.control}
+    name="password"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Contraseña</FormLabel>
+        <FormControl>
+          <Input type="password" {...field} />
+        </FormControl>
+      </FormItem>
+    )}
+  />
+)

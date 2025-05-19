@@ -2,7 +2,7 @@
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
-import "./src/env.js";
+import "./src/env.js"
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -11,6 +11,6 @@ const config = {
   transpilePackages: ["geist"],
   distDir: "docs",
   basePath: "/chelly-med",
-};
+}
 
-export default config;
+export default config

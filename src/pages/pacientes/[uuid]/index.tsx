@@ -1,7 +1,7 @@
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
-import * as M from "@mantine/core";
+import Head from "next/head"
+import { useRouter } from "next/router"
+import { useState, useEffect } from "react"
+import * as M from "@mantine/core"
 import {
   IconUser,
   IconCalendar,
@@ -13,12 +13,12 @@ import {
   IconNotes,
   IconHeartbeat,
   IconAlertCircle,
-} from "@tabler/icons-react";
-import Link from "next/link";
+} from "@tabler/icons-react"
+import Link from "next/link"
 
 // Mock patients data - in a real app, this would come from an API
 const mockPatientsData = {
-  "12345": {
+  12345: {
     id: "12345",
     name: "María González López",
     birthDate: "1985-06-15",
@@ -31,7 +31,7 @@ const mockPatientsData = {
     additionalNotes:
       "Paciente con tratamiento regular para hipertensión. Última visita hace 3 meses.",
   },
-  "67890": {
+  67890: {
     id: "67890",
     name: "Juan Pérez",
     birthDate: "1990-02-20",
@@ -44,39 +44,51 @@ const mockPatientsData = {
     additionalNotes:
       "Paciente con tratamiento regular para asma. Última visita hace 2 meses.",
   },
-};
+}
 
-type PatientData = typeof mockPatientsData["12345"];
+type PatientData = typeof mockPatientsData["12345"]
 
-export default function PatientPage() {
-  const router = useRouter();
-  const { uuid } = router.query;
-  const [patient, setPatient] = useState<PatientData | null>(null);
-  const [loading, setLoading] = useState(true);
+// Add these functions for static generation
+export async function getStaticPaths()
+{
+  // Generate paths for each mock patient
+  const paths = Object.keys(mockPatientsData).map(id => ({
+    params: { uuid: id },
+  }))
 
-  useEffect(() => {
-    // In a real app, fetch patient data from an API
-    // For now, we'll use mock data
-    if (uuid) {
-      setLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        const patientData = mockPatientsData[uuid as keyof typeof mockPatientsData];
-        setPatient(patientData);
-        setLoading(false);
-      }, 500);
+  return {
+    paths,
+    fallback: false, // Show 404 for any paths not returned by getStaticPaths
+  }
+}
+
+export async function getStaticProps({ params }: { params: { uuid: string } })
+{
+  // Get the patient data for this ID
+  const patientData
+    = mockPatientsData[params.uuid as keyof typeof mockPatientsData]
+
+  // Return 404 if patient not found
+  if (!patientData)
+  {
+    return {
+      notFound: true,
     }
-  }, [uuid]);
-
-  if (loading) {
-    return (
-      <M.Center style={{ height: "100vh" }}>
-        <M.Loader size="xl" />
-      </M.Center>
-    );
   }
 
-  if (!patient) {
+  return {
+    props: {
+      patient: patientData,
+    },
+  }
+}
+
+export default function PatientPage({ patient }: { patient: PatientData })
+{
+  const router = useRouter()
+
+  if (!patient)
+  {
     return (
       <M.Container size="md" py="xl">
         <M.Alert
@@ -90,7 +102,7 @@ export default function PatientPage() {
           Volver al inicio
         </M.Button>
       </M.Container>
-    );
+    )
   }
 
   return (
@@ -114,24 +126,29 @@ export default function PatientPage() {
               <M.Avatar size="xl" color="blue" radius="xl">
                 {patient.name
                   .split(" ")
-                  .map((name) => name[0])
+                  .map(name => name[0])
                   .join("")
                   .substring(0, 2)}
               </M.Avatar>
               <div>
                 <M.Title order={3}>{patient.name}</M.Title>
-                <M.Text color="dimmed">ID: {patient.id}</M.Text>
+                <M.Text color="dimmed">
+                  ID:
+                  {patient.id}
+                </M.Text>
               </div>
             </M.Group>
             <M.Badge
               size="lg"
               color={patient.gender === "Masculino" ? "blue" : "pink"}
               leftSection={
-                patient.gender === "Masculino" ? (
-                  <IconGenderMale size={16} />
-                ) : (
-                  <IconGenderFemale size={16} />
-                )
+                patient.gender === "Masculino"
+                  ? (
+                      <IconGenderMale size={16} />
+                    )
+                  : (
+                      <IconGenderFemale size={16} />
+                    )
               }
             >
               {patient.gender}
@@ -279,5 +296,5 @@ export default function PatientPage() {
         </M.Group>
       </M.Container>
     </>
-  );
+  )
 }
