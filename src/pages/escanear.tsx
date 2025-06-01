@@ -1,45 +1,30 @@
 import Head from "next/head"
-import { useRouter } from "next/router"
-import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
+import { type NextRouter, useRouter } from "next/router"
 import { notifications } from "@mantine/notifications"
 import Link from "next/link"
+import QrScanner from "qr-scanner"
+import { useEffect, useState } from "react"
 
 export default function Home()
 {
   const router = useRouter()
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null)
 
-  const handleQrResult = (result: Array<IDetectedBarcode>) =>
+  useEffect(() =>
   {
-    const text = result?.[0]?.rawValue
-    if (!text) return
-
-    let param = text
-    const paramNum = Number(param)
-
-    if (!Number.isFinite(paramNum))
+    if (videoElement == null)
     {
-      try
-      {
-        const url = new URL(text)
-        // extract uuid from url
-        const uuid = url.searchParams.get("uuid")
-        if (!uuid) throw new Error()
-        param = uuid
-      }
-      catch (e)
-      {
-        notifications.show({
-          title: "Error",
-          message: "El QR no es válido",
-          color: "red",
-        })
-        console.error(e)
-        return
-      }
+      return
     }
 
-    void router.push(`/centro/pacientes?uuid=${param}`)
-  }
+    const qrScanner = new QrScanner(
+      videoElement,
+      result => handleQrResult({ text: result.data, router }),
+      { highlightScanRegion: true, highlightCodeOutline: true, onDecodeError: console.error }
+    )
+
+    void qrScanner.start()
+  }, [router, videoElement])
 
   return (
     <>
@@ -62,13 +47,41 @@ export default function Home()
               Escanee el código QR del paciente
             </p>
             <div className="w-full min-h-[200px]">
-              <Scanner
-                onScan={handleQrResult}
-              />
+              <video ref={setVideoElement} />
             </div>
           </div>
         </div>
       </main>
     </>
   )
+}
+
+function handleQrResult({ text, router }: { text: string, router: NextRouter })
+{
+  let param = text
+  const paramNum = Number(param)
+
+  if (!Number.isFinite(paramNum))
+  {
+    try
+    {
+      const url = new URL(text)
+      // extract uuid from url
+      const uuid = url.searchParams.get("uuid")
+      if (!uuid) throw new Error()
+      param = uuid
+    }
+    catch (e)
+    {
+      notifications.show({
+        title: "Error",
+        message: "El QR no es válido",
+        color: "red",
+      })
+      console.error(e)
+      return
+    }
+  }
+
+  void router.push(`/centro/pacientes?uuid=${param}`)
 }
