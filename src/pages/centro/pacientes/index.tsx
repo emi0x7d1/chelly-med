@@ -273,7 +273,6 @@ function getBloodPressureCondition(bp: string | undefined): string
   if (systolic < 90 || diastolic < 60) return "Hipotensión"
   if ((systolic >= 140 && systolic <= 159) || (diastolic >= 90 && diastolic <= 99)) return "Hipertensión grado 1"
   if (systolic >= 160 || diastolic >= 100) return "Hipertensión grado 2"
-  if ((systolic >= 121 && systolic <= 139) || (diastolic >= 81 && diastolic <= 89)) return "Prehipertensión"
   if ((systolic >= 90 && systolic <= 120) && (diastolic >= 60 && diastolic <= 80)) return "Normal"
   return "-"
 }
