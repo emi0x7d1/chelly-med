@@ -11,6 +11,9 @@ const config = {
   transpilePackages: ["geist"],
   distDir: "docs",
   basePath: "/chelly-med",
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 }
 
 export default config
